@@ -80,20 +80,22 @@ public class Transcoder {
 //            MainActivity mainActivity = new MainActivity();
 //            int originalBitrate = Integer.parseInt(mainActivity.getBitrate());
 
-            int targetWidth = 1280;
-            int targetHeight = 720;
+            int targetWidth = 720;
+            int targetHeight = 480;
 //            int targetBitrate = (int) Math.floor(0.7 * originalBitrate);
-            int targetBitrate = 806987;
-            int targetFrameRate = 30;
+            int targetBitrate = 500000;
+            int targetFrameRate = 24;
             String encoderMime = "video/avc";
             MediaFormat outputFormat = MediaFormat.createVideoFormat(encoderMime, targetWidth, targetHeight);
             outputFormat.setInteger(MediaFormat.KEY_BIT_RATE, targetBitrate);
             outputFormat.setInteger(MediaFormat.KEY_FRAME_RATE, targetFrameRate);
+            outputFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_CBR);
 //            outputFormat.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_VBR);
             outputFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 2);
 
             // Create and configure the encoder.
             encoder = MediaCodec.createEncoderByType(encoderMime);
+            Log.d(TAG, "Encoder Name: " + encoder.getName());
             encoder.configure(outputFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             Surface encoderInputSurface = encoder.createInputSurface();
             encoder.start();

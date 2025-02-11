@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
             String height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
             String bitRate = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
 //            setBitrate(bitRate);
+            String fps = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE);
             // Retrieve container MIME type (likely "video/mp4")
             String containerMime = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
 
@@ -205,8 +206,8 @@ public class MainActivity extends AppCompatActivity {
             String codec = getVideoCodecInfo(videoUri);
 
             String details = String.format(Locale.getDefault(),
-                    "Duration: %sms\nResolution: %sx%s\nBitrate: %s bps\nContainer MIME: %s\nCodec: %s",
-                    duration, height, width, bitRate, containerMime, codec);
+                    "Duration: %sms\nResolution: %sx%s\nBitrate: %s bps\nContainer MIME: %s\nCodec: %s\nFPS: %s",
+                    duration, height, width, bitRate, containerMime, codec, fps);
 
             new AlertDialog.Builder(this)
                     .setTitle("Video Details")
