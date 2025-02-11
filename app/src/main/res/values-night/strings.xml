@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">API_testing</string>
     <string name="pick_video">Pick Video</string>
     <string name="show_details">Show Details</string>
     <string name="transcode_video">Transcode Video</string>
