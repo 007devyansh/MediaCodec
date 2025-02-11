@@ -2,8 +2,9 @@ package com.example.api_testing;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaExtractor;
@@ -11,15 +12,17 @@ import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.MediaController;
 import android.widget.Toast;
+import android.widget.VideoView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -28,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
 
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_REQUEST_CODE = 1;
@@ -39,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
     private Uri selectedVideoUri;
     private Button pickButton, detailsButton, transcodeButton;
 
+    private ActivityResultLauncher<Intent> videoPickerLauncher;
+    private VideoView videoView;
+    private MediaController mediaController;
 
     public Uri getSelectedUri() {
         return selectedVideoUri;
@@ -52,6 +57,13 @@ public class MainActivity extends AppCompatActivity {
         detailsButton = findViewById(R.id.detailsButton);
         transcodeButton = findViewById(R.id.transcodeButton);
 
+        videoView = findViewById(R.id.videoView);
+
+        // Initialize MediaController
+        mediaController = new MediaController(this);
+        mediaController.setAnchorView(videoView);
+        videoView.setMediaController(mediaController);
+
         // Initially disable details and transcode buttons until a video is selected.
         detailsButton.setEnabled(false);
         transcodeButton.setEnabled(false);
@@ -61,14 +73,22 @@ public class MainActivity extends AppCompatActivity {
             requestStoragePermission();
         }
 
-        pickButton.setOnClickListener(v -> {
-            // Launch the system file picker to select a video.
-            Toast.makeText(this, "touched", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("video/*");
-            startActivityForResult(intent, REQUEST_CODE_PICK_VIDEO);
-        });
+        // Video Picker Launcher
+        videoPickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        selectedVideoUri = result.getData().getData();
+                        detailsButton.setEnabled(true);
+                        transcodeButton.setEnabled(true);
+                        Toast.makeText(this, "Video selected", Toast.LENGTH_SHORT).show();
+                        videoView.setVideoURI(selectedVideoUri);
+                        videoView.start();
+                    }
+                }
+        );
+
+        pickButton.setOnClickListener(v -> pickVideo());
 
         detailsButton.setOnClickListener(v -> {
             Toast.makeText(this, "details", Toast.LENGTH_SHORT).show();
@@ -98,6 +118,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("IntentReset")
+    private void pickVideo() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("video/*");
+        videoPickerLauncher.launch(intent);
+    }
+
     private boolean hasStoragePermission() {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED &&
@@ -121,19 +148,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_PICK_VIDEO && resultCode == RESULT_OK && data != null) {
-            selectedVideoUri = data.getData();
-            if (selectedVideoUri != null) {
-                detailsButton.setEnabled(true);
-                transcodeButton.setEnabled(true);
-                Toast.makeText(this, "Video selected", Toast.LENGTH_SHORT).show();
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     // AsyncTask to run transcoding on a background thread.
