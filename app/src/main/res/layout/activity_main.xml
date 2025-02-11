@@ -1,21 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:padding="16dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="20dp">
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" />
+
+        <!-- Container to position MediaController at the bottom -->
+        <LinearLayout
+            android:id="@+id/mediaControllerContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:gravity="center"
+            android:orientation="horizontal" />
+    </FrameLayout>
 
     <Button
         android:id="@+id/pickButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Video" />
+        android:text="@string/pick_video"
+        android:layout_marginTop="20dp" />
 
     <Button
         android:id="@+id/detailsButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Show Details"
+        android:text="@string/show_details"
         android:layout_marginTop="16dp"
         android:enabled="false" />
 
@@ -23,7 +47,7 @@
         android:id="@+id/transcodeButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Transcode Video"
+        android:text="@string/transcode_video"
         android:layout_marginTop="16dp"
         android:enabled="false" />
 
